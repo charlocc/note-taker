@@ -59,11 +59,18 @@ app.post('/api/notes', (req, res) => {
   });
 
 // DELETE route for deleting notes
-// app.delete('/api/notes/:id', (req, res) => {
-//   const deletedNoteId = req.params.id;
-//   readFromFile('./db/db.json')
-//   .then
-// })
+app.delete('/api/notes/:id', (req, res) => {
+  console.info(`${req.method} note`);
+  const deletedNoteId = req.params.id;
+  readFromFile('./db/db.json')
+  .then((data)=> JSON.parse(data))
+  .then((notes)=> {
+    const notesLeft = notes.filter((note)=> note.id !== deletedNoteId)
+    writeToFile('./db/db.json', notesLeft)
+    res.status(200).json('Note successfully deleted')
+    return;
+  });
+});
 
 // Host port
 app.listen(PORT, ()=>
