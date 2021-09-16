@@ -1,8 +1,8 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
-const { v4: uuidv4 } = require('uuid');
-// const { readFromFile, writeToFile, readAndAppend } = require('../helpers/fsUtils');
+const uuidv4  = require('./helpers/uuid');
+const { readFromFile, writeToFile, readAndAppend } = require('./helpers/fsUtils');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -14,7 +14,7 @@ app.use(express.urlencoded({extended:true}));
 app.use(express.static('public'));
 
 
-
+// HTML ROUTES 
 
 // route to notes.html page
 app.get('/notes', (req, res) => 
@@ -26,36 +26,44 @@ app.get('/', (req, res) =>
     res.sendFile(path.join(__dirname, '/public/index.html'))
 ); 
 
+// APP ROUTES 
+
 // GET Route for retrieving notes
-app.get('/', (req, res) =>
-  readFromFile('./db/feedback.json').then((data) => res.json(JSON.parse(data)))
+app.get('/api/notes', (req, res) =>
+  readFromFile('./db/db.json').then((data) => res.json(JSON.parse(data)))
 );
 
 // POST Route for submitting notes
-app.post('/', (req, res) => {
-    const { title, noteText } = req.body;
+app.post('/api/notes', (req, res) => {
+    const { title, text } = req.body;
   
     // If all the required properties are present, create new note and append to the db.json
-    if (title && noteText) {
+    if (title && text) {
       const newNote = {
         title,
-        noteText,
-        note_id: uuidv4(),
+        text,
+        id: uuidv4(),
       };
   
       readAndAppend(newNote, './db/db.json');
   
       const response = {
-        status: 'success',
+        status: 'Successfully posted note',
         body: newNote,
       };
   
       res.json(response);
     } else {
-      res.json('Error in posting feedback');
+      res.json('Error in posting note');
     }
   });
 
+// DELETE route for deleting notes
+// app.delete('/api/notes/:id', (req, res) => {
+//   const deletedNoteId = req.params.id;
+//   readFromFile('./db/db.json')
+//   .then
+// })
 
 // Host port
 app.listen(PORT, ()=>
