@@ -36,7 +36,6 @@ app.get('/api/notes', (req, res) =>
 // POST Route for submitting notes
 app.post('/api/notes', (req, res) => {
     const { title, text } = req.body;
-  
     // If all the required properties are present, create new note and append to the db.json
     if (title && text) {
       const newNote = {
@@ -44,28 +43,32 @@ app.post('/api/notes', (req, res) => {
         text,
         id: uuidv4(),
       };
-  
+      // Add the new note to the db file
       readAndAppend(newNote, './db/db.json');
-  
-      const response = {
-        status: 'Successfully posted note',
-        body: newNote,
-      };
-  
-      res.json(response);
+      // Display the new note on the page
+      res.json(newNote);
+      // Display "NOTE POSTED" if note was successfully posted
+      console.info(`NOTE ${req.method}ED`);
+
     } else {
+      // Display error message if note could not post
       res.json('Error in posting note');
     }
   });
 
 // DELETE route for deleting notes
 app.delete('/api/notes/:id', (req, res) => {
-  console.info(`${req.method} note`);
+  // Display "NOTE DELETED" if note was successfully posted
+  console.info(`NOTE ${req.method}D`);
+  // Set deletedNoteId equal to the id selected by the user
   const deletedNoteId = req.params.id;
   readFromFile('./db/db.json')
+  // create an object 
   .then((data)=> JSON.parse(data))
   .then((notes)=> {
+    // filter out the note with the id matching the deletedNoteId 
     const notesLeft = notes.filter((note)=> note.id !== deletedNoteId)
+    // write this object to the file db.json file 
     writeToFile('./db/db.json', notesLeft)
     res.status(200).json('Note successfully deleted')
     return;
